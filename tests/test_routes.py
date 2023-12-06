@@ -127,11 +127,18 @@ class TestAccountService(TestCase):
     def test_read_an_account(self):
         """It should be able to read an account from the service"""
         new_account = self._create_accounts(1)[0]
-        response = self.client.get(f"/accounts/{new_account.id}")
+        response = self.client.get(f"{BASE_URL}/{new_account.id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(new_account.name, response.get_json()["name"])
 
     def test_account_not_found(self):
         """It should return an error when reading an account with an account id that does not exist"""
-        response = self.client.get(f"/accounts/0")
+        response = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, "Account not found")
+
+    def test_list_all_accounts(self):
+        """It should be able to return all accounts"""
+        self._create_accounts(5)
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.get_json()), 5)
